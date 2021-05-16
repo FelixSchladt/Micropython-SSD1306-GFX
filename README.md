@@ -62,19 +62,22 @@ Keep them in the same directory on the micropython device
 
 #### Import the Library classes
 the ssd1306_gfx class inherits the methods of the ssd1306.py class.
-'''
+
+'''python
 import ssd1306_gfx
 '''
 
 #### Initiliazition of the connection by calling the SSD1306_I2C_SETUP or SSD1306_SPI_SETUP class
 **Here I2C:** This initializes the I2C connection and the driver class
-'''
+
+'''python
 ssd1306_display = SSD1306_I2C_SETUP(22, 21, 128, 64)
 #ssd1306_display = SSD1306_I2C_SETUP(SCL Pin, SDA Pin, display width, display height)
 '''
 
 #### Draw a simple shape
-'''
+
+'''python
 ssd1306_display.triangle( 0, 0, 25 , 0, 25, 63)
 ssd1306_display.circle(None, None, None, 3) #Utilizes default values
 ssd1306_display.text("Test TEXT", 10, 20, 0)
