@@ -1,19 +1,17 @@
-# Micropython SSD1306-tools
-Micropython Utility library for Adafruit 0.96" SSD1306 monochrome OLED Display - Basic shapes &amp; examples
+# Micropython SSD1306-GFX
+Micropython Utility library for Adafruit 0.96" SSD1306 monochrome OLED Display - GFX functions &amp; examples
 
 ### This project includes
 
-- Functions for basic shapes (circle, rectangle, lines, frames, ~~triangles~~)
+- GFX pixel drawing functions for basic shapes (circle, rectangle, lines, frames, ~~triangles~~)
 - Easy setup of an I2C / SPI connection to the display
 - Examples
 
-## Content
+## Warning
 
-1. Installation
-2. Display setup
-3. 1306_tools object initialization
-4. Functions
-5. Contribute
+This project was written just **for fun and personal use**. 
+Altough depreciated [Adafruits's GFX Library](https://github.com/adafruit/micropython-adafruit-gfx/blob/master/gfx.py) provides probably the better performance
+
 
 ## Installation
 
@@ -51,17 +49,34 @@ Keep a copy of [ssd1306.py](https://github.com/micropython/micropython/blob/mast
 
 ### SPI
 
-_please consider adding this section_
+_please consider contributing to this section..._
 
 ## First steps
 
-Copy ssd1306.py and ssd1306_tools.py onto your device and safe them.
+#### Copy ssd1306.py and ssd1306_gfx.py onto your device and safe them.
+Keep them in the same directory on the micropython device
+
+#### Import the Library classes
+the ssd1306_gfx class inherits the methods of the ssd1306.py class.
 '''
-import ssd1306_tools
+import ssd1306_gfx
+'''
 
-## Functions
+#### Initiliazition of the connection by calling the SSD1306_I2C_SETUP or SSD1306_SPI_SETUP class
+**Here I2C:** This initializes the I2C connection and the driver class
+'''
+ssd1306_display = SSD1306_I2C_SETUP(22, 21, 128, 64)
+#ssd1306_display = SSD1306_I2C_SETUP(SCL Pin, SDA Pin, display width, display height)
+'''
 
+#### Draw a simple shape
+'''
+ssd1306_display.triangle( 0, 0, 25 , 0, 25, 63)
+ssd1306_display.circle(None, None, None, 3) #Utilizes default values
+ssd1306_display.text("Test TEXT", 10, 20, 0)
 
+ssd1306_display.show() #Writes the buffer onto the display
+'''
 
 
 Please feel invited to contribute and improve!
