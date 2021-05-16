@@ -19,7 +19,7 @@ Altough depreciated [Adafruits's GFX Library](https://github.com/adafruit/microp
 
 ### Prerequisits
 
-Your device needs to bet setuop for micropython [micropython.org tutorial](https://docs.micropython.org/en/v1.15/esp32/tutorial/intro.html)
+Your device needs to bet setuop for micropython [micropython.org](https://docs.micropython.org/en/v1.15/esp32/tutorial/intro.html) tutorial.
 
 As development IDE I **personally** recommend [thonny](https://thonny.org/).  
 
