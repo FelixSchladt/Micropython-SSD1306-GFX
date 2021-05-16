@@ -23,7 +23,7 @@ Your device needs to bet setuop for micropython [micropython.org tutorial](https
 
 As development IDE I **personally** recommend [thonny](https://thonny.org/).
 
-This project was wirtten and tested with an ESP32 using an I2C connection but should work fine on other micropython devices.
+This project was wirtten and tested with an ESP32 using an I2C connection but it should work fine on other micropython devices.
 The SPI implemenatation is not yet tested.
 
 
