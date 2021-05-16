@@ -41,6 +41,7 @@ Keep a copy of [ssd1306.py](https://github.com/micropython/micropython/blob/mast
 | SCL | SCL default is **GPIO 22** |
 | GND | GND |
 | VCC | **3.3V** and **5V** should work |
+
 | I2C Device | ESP8266| 
 | ------- | --------- |
 | SDA | SDA default is **GPIO 04** | 
