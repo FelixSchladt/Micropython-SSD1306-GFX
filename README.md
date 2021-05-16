@@ -72,7 +72,7 @@ import ssd1306_gfx
 
 ```pythonn
 ssd1306_display = SSD1306_I2C_SETUP(22, 21, 128, 64)
-#ssd1306_display = SSD1306_I2C_SETUP(SCL Pin, SDA Pin, display width, display height)
+// ssd1306_display = SSD1306_I2C_SETUP(SCL Pin, SDA Pin, display width, display height)
 ```
 
 #### Draw a simple shape
