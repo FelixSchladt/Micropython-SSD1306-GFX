@@ -3,15 +3,17 @@ Micropython Utility library for Adafruit 0.96" SSD1306 monochrome OLED Display -
 
 ### This project includes
 
-- GFX pixel drawing functions for basic shapes (circle, rectangle, lines, frames, ~~triangles~~)
+- GFX pixel drawing functions for basic shapes (circle, rectangle, lines, frames, triangles)
 - Easy setup of an I2C / SPI connection to the display
 - Examples
-
+  
+  
 ## Warning
 
 This project was written just **for fun and personal use**. 
-Altough depreciated [Adafruits's GFX Library](https://github.com/adafruit/micropython-adafruit-gfx/blob/master/gfx.py) provides probably the better performance
-
+Altough depreciated [Adafruits's GFX Library](https://github.com/adafruit/micropython-adafruit-gfx/blob/master/gfx.py) probably provides the better performance
+  
+  
 
 ## Installation
 
@@ -19,16 +21,17 @@ Altough depreciated [Adafruits's GFX Library](https://github.com/adafruit/microp
 
 Your device needs to bet setuop for micropython [micropython.org tutorial](https://docs.micropython.org/en/v1.15/esp32/tutorial/intro.html)
 
-As development IDE I **personally** recommend [thonny](https://thonny.org/).
+As development IDE I **personally** recommend [thonny](https://thonny.org/).  
 
-This project was wirtten and tested with an ESP32 using an I2C connection but it should work fine on other micropython devices.
-The SPI implemenatation is not yet tested.
+This project was wirtten and tested with an ESP32 using an I2C connection but it should work fine on other micropython devices.  
+The SPI implemenatation is not yet tested.  
 
 
 ### This library requires the display driver for SSD1306
 
 Keep a copy of [ssd1306.py](https://github.com/micropython/micropython/blob/master/drivers/display/ssd1306.py) in the same directory
-
+  
+  
 ## Display setup
 
 ### I2C
