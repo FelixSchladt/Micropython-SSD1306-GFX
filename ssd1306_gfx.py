@@ -7,11 +7,16 @@
 #
 # Contribute to this project on Github:
 #
+# https://github.com/FelixSchladt/Micropython-SSD1306-GFX
+#
+# More graphic primitives are provided by the inherited frambuffer class
+# http://docs.micropython.org/en/latest/pyboard/library/framebuf.html
+#
 
 from ssd1306 import *
 import machine
 
-class SSD1306_TOOLS:
+class SSD1306_GFX:
     
     ########################################
     #                                      #
@@ -27,10 +32,8 @@ class SSD1306_TOOLS:
     # width   -> second coordinate
     # color   -> 0 = black , 1 = colored | optional
         
-    def rect(self, x0, y0, x1 , y1, color = 1):
-        for x in range(x0 if x0<x1 else x1, x1+1 if x0<x1 else x0+1):
-            for y in range(y0 if y0<y1 else y1, y1+1 if y0<y1 else y0+1):
-                self.pixel(x, y , color)
+    def rectangle(self, x0, y0, x1 , y1, color = 1):
+        self.fill_rect(x0, y0, x1-x0, y1-y0, color)
     
     
     ### Draw frame ###
@@ -39,32 +42,19 @@ class SSD1306_TOOLS:
     # x0, y0  -> start coordinate
     # width   -> width in pixel
     # height  -> height in pixel
-    # f_width -> width of the frame in pixel | optional
+    # width -> width of the frame in pixel | optional
     # color   -> 0 = black , 1 = colored | optional
    
-    def frame(self, x0 = 0, y0 = 0, x1 = None, y1 = None, f_width = 1, color = 1):
-        
-        print(x0, y0, x1, y1)
-        
+    def frame(self, x0 = 0, y0 = 0, x1 = None, y1 = None, width = 1, color = 1):
         x1 = self.display_width-1 if x1 is None else x1
         y1 = self.display_height-1 if y1 is None else y1
+        width -= 1
         
-        print(x0, y0, x1, y1)
+        self.rectangle( x0, y0, (x0-width) if x0 > x1 else (x0 + width), y1 )
+        self.rectangle( x1, y0, (x1-width) if x0 < x1 else (x1 + width), y1 )
         
-        self.rect( x0, y0, (x0-f_width) if x0 > x1 else (x0 + f_width), y1 )
-        self.rect( x1, y0, (x1-f_width) if x0 < x1 else (x1 + f_width), y1 )
-        
-        self.rect( x0, y0, x1, (y0 + f_width) if y0 < y1 else (y0 - f_width))
-        self.rect( x0, y1, x1, (y1 - f_width) if y1 > y0 else (y1 + f_width))
-    
-    
-    ### Fill display ###
-    # Fill the whole display with color or turn it off
-    #
-    # color   -> 0 = black , 1 = colored | optional
-    
-    def fill(self, color = 0):
-        self.rect(0, 0, self.display_width-1, self.display_height-1, color)
+        self.rectangle( x0, y0, x1, (y0 + width) if y0 < y1 else (y0 - width))
+        self.rectangle( x0, y1, x1, (y1 - width) if y1 > y0 else (y1 + width)) 
     
     
     ### Draw line ###
@@ -72,14 +62,128 @@ class SSD1306_TOOLS:
     #
     # x0, y0  -> start coordinate
     # x1, y1  -> end coordinate
+    # width   -> width in pixel
     # color   -> 0 = black , 1 = colored | optional
     
-    def line(self, x0 , y0 , x1, y1, color = 1):
-        for c in self.__bresenham_line(self, x0 , y0 , x1, y1):
-            self.pixel(c[0], c[1], color)
+    def line_wide(self, x0 = 0 , y0 = 0 , x1 = None, y1 = None, width = 1, color = 1):
+        x1 = self.display_width-1 if x1 is None else x1
+        y1 = self.display_height-1 if y1 is None else y1
+        
+        for offset in range(0, width, 1 if 0 < width else -1):
+            self.line( x0 + offset, y0 + offset, x1 + offset, y1+ offset, color)
+    
+    
+    ### Draw line horizontal ###
+    # draw a horizontal line spannign the total display
+    #
+    # y       -> start point (x = 0, y = ?)
+    # color   -> 0 = black , 1 = colored | optional
+    
+    def line_horizontal(self, y, x0 = 0, x1 = None, width = 1, color = 1):
+        x1 = self.display_width-1 if x1 is None else x1
+        for offset in range(0, width, 1 if 0 < width else -1):
+            self.hline(x0, y + offset, x1-x0, color)
+
+    
+    ### Draw line vertical ###
+    # draw a vertical line spannign the total display
+    #
+    # y       -> start point (x = ?, y = 0)
+    # color   -> 0 = black , 1 = colored  | optional
+    
+    def line_vertical(self, x, y0 = 0, y1 = None, width = 1, color = 1):
+        y1 = self.display_height-1 if y1 is None else y1
+        for offset in range(0, width, 1 if 0 < width else -1):
+            self.vline(x + offset, y0, y1-y0, color)
+            
+    
+    def triangle_filled(self, x0 = 0, y0 = 0, x1 = None, y1 = None, x2 = None, y2 = 0, color = 1):
+        x1 = int(self.display_width/2-1) if x1 is None else x1
+        y1 = int(self.display_height-1) if y1 is None else y1
+        x2 = int(self.display_width-1) if x2 is None else x2
+        #self.__fill(list(self.__bresenham_line(x0, y0, x1, y1)), list(self.__bresenham_line(x1, y1, x2, y2)), color)
+        l0, l1 = self.__bresenham_line(x0, y0, x1, y1), self.__bresenham_line(x1, y1, x2, y2)
+        
+        for y in l0:
+            self.line_horizontal(y, min(l0[y]), min(l1[y])+1, color)
+            self.line_horizontal(y, max(l0[y]), max(l1[y])+1, color)
+        
+        
+    def triangle(self, x0 = 0, y0 = 0, x1 = None, y1 = None, x2 = None, y2 = 0, width = 1, color = 1):
+        x1 = int(self.display_width/2-1) if x1 is None else x1
+        y1 = int(self.display_height-1) if y1 is None else y1
+        x2 = int(self.display_width-1) if x2 is None else x2
+        
+        self.line_wide(x0, y0, x1, y1, width, color)
+        self.line_wide(x0, y0, x2, y2, width, color)
+        self.line_wide(x1, y1, x2, y2, width, color)
+        
+
+    
+    def circle(self, x0 = None, y0 = None, r = None, width = 1, color =1): 
+        x0 = (self.display_width/2-1) if x0 is None else x0
+        y0 = (self.display_height/2-1) if y0 is None else y0
+        r = (self.display_height/2-1) if r is None else r
+        width -= 1
+        
+        icoordinates = self.__bresenham_circle(x0, y0, (r-width))
+        for y in icoordinates:
+            for x in range(0, len(icoordinates[y])):
+                self.pixel(icoordinates[y][x], y , color)
+                
+        if width is 0:
+            return
+        
+        print("no return")
+        ocoordinates = self.__bresenham_circle(x0, y0, r)
+        for y in ocoordinates: 
+            if min(icoordinates) > y or y > max(icoordinates):
+                self.line_horizontal(y, min(ocoordinates[y]), max(ocoordinates[y])+1, color)
+            else:
+                self.line_horizontal(y, min(ocoordinates[y]), min(icoordinates[y])+1, color)
+                self.line_horizontal(y, max(icoordinates[y]), max(ocoordinates[y])+1, color)
+            for x in range(0, len(ocoordinates[y])):
+               self.pixel(ocoordinates[y][x], y , color) 
+        
+                 
+    # inefficient  
+    def __fill(self, l0, l1 = None, color = 1):
+        l1 = l0 if l1 is None else l1
+        for c0 in l0:
+            for c1 in l1:
+                if c0[1] == c1[1]:
+                    self.line_horizontal(c0[1], c0[0], c1[0], color)
+    
+    #####
+    def circle_filled(self, x0 = None, y0 = None, r = None, color = 1):
+        x0 = (self.display_width/2-1) if x0 is None else x0
+        y0 = (self.display_height/2-1) if y0 is None else y0
+        r = (self.display_height/2-1) if r is None else r
+        
+        coordinates = self.__bresenham_circle(x0, y0, r)
+        for y in coordinates:
+            self.line_horizontal(y, min(coordinates[y]), max(coordinates[y])+1, color)
+            
+    
+    ### Progress bar ###
+    # Displays percentage visually in a bar
+    #
+    # y     -> height of the bar on the display
+    # percent -> progress in percent | int 75 = 75%
+    # symbol  -> choose symbol to be displayed | optional
+    # color   -> 0 = black , 1 = colored | optional
+    
+    def progress_bar(self, y, percent, symbol = "=", color = 0):
+        self.text("|", 0, y)
+        self.text("|", self.display_width-5, y)
+        print((self.display_width- 10 - (self.display_width-10) % 8))
+        for i in range(0, ((self.display_width- 10)*(percent/100) - ((self.display_width-10)*(percent/100)) % 8), 8):
+            self.text(symbol, i + 5, y)
+
     
     ### private sub class of line ###
-    def __bresenham_line(self, x0 , y0 , x1, y1, color = 1):
+    # Line drawing based upon the bresenham algorythm
+    def __bresenham_line(self, x0 , y0 , x1, y1):
         dx = x1 - x0
         dy = y1 - y0
 
@@ -97,16 +201,22 @@ class SSD1306_TOOLS:
 
         D = 2*dy - dx
         y = 0
+        n = {}
         for x in range(dx + 1):
-            yield x0 + x*xx + y*yx, y0 + x*xy + y*yy
+            if n.get(int(y0 + x*xy + y*yy)) is None:
+                n[int(y0 + x*xy + y*yy)] = [int(x0 + x*xx + y*yx)]
+            else:
+                n[int(y0 + x*xy + y*yy)].append(int(x0 + x*xx + y*yx))
+            #yield x0 + x*xx + y*yx, y0 + x*xy + y*yy
             if D >= 0:
                 y += 1
                 D -= 2*dx
             D += 2*dy
-    
+        return n
     
     ### private sub class of circle ###
-    def __bresenham_circle(self, x0, y0, r): 
+    # Circle drawing based upon the bresenham algorythm
+    def __bresenham_circle(self, x0, y0, r):
         x, y, p = 0, r, 1-r
 
         L = []
@@ -133,81 +243,14 @@ class SSD1306_TOOLS:
             L.append((i[0], -i[1]))
             L.append((-i[0], -i[1]))
         
+        n = {}
         for i in L:
-            yield int(x0+i[0]), int(y0+i[1])
+            if n.get(int(y0+i[1])) is None:
+                n[int(y0+i[1])] = [int(x0+i[0])]
+            else:
+                n[int(y0+i[1])].append(int(x0+i[0]))
+        return n
     
-    ### Draw line horizontal ###
-    # draw a horizontal line spannign the total display
-    #
-    # y       -> start point (x = 0, y = ?)
-    # color   -> 0 = black , 1 = colored | optional
-    
-    def line_h(self, y, x0 = 0, x1 = None, color = 1):
-        x1 = self.display_width-1 if x1 is None else x1
-        for x in range(x0, x1, 1 if x1 > x0 else -1):
-            self.pixel(x, y , color)
-    
-    
-    ### Draw line vertical ###
-    # draw a vertical line spannign the total display
-    #
-    # y       -> start point (x = ?, y = 0)
-    # color   -> 0 = black , 1 = colored  | optional
-    
-    def line_v(self, x, y0 = 0, y1 = None, color = 1):
-        y1 = self.display_height-1 if y1 is None else y1
-        for y in range(y0, y1, 1 if y1 > y0 else -1):
-            self.pixel(x, y , color)
-    
-    def triangle(self, x0, y0, x1, y1, x2, y2, f_width = 1, color = 1):
-        self.line()
-    
-     
-    
-
-    
-    def circle(self, x0 = None, y0 = None, r = None, f_width = 1, color =1): 
-        x0 = (self.display_width/2-1) if x0 is None else x0
-        y0 = (self.display_height/2-1) if y0 is None else y0
-        r = (self.display_height/2-1) if r is None else r
-        
-        #f_width not working
-        
-        ###potential fix for missing pixels in multiwidth circles -Y fill gap between the inner and outer circle
-        for c in self.__bresenham_circle(x0, y0, r):
-            self.pixel(c[0], c[1], color)
-
-    
-    def circle_filled(self, x0 = None, y0 = None, r = None, color =1): #Leaves pixels inside circle blank because of the algorythm
-        x0 = (self.display_width/2-1) if x0 is None else x0
-        y0 = (self.display_height/2-1) if y0 is None else y0
-        r = (self.display_height/2-1) if r is None else r
-        ##potential fix is to only draw one circle and fill the rest with lines
-        
-        for g in range(r, 0, -1):
-            for c in self.__bresenham_circle(x0, y0, g):
-                self.pixel(c[0], c[1], color)
-
-   
-        
-    
-    
-    
-    ### Progress bar ###
-    # Displays percentage visually in a bar
-    #
-    # y     -> height of the bar on the display
-    # percent -> progress in percent | int 75 = 75%
-    # symbol  -> choose preffered symbol to be displayed | optional
-    # color   -> 0 = black , 1 = colored | optional
-    
-    def progress_bar(self, y, percent, symbol = "=", color = 0):
-        self.text("|", 0, y)
-        self.text("|", self.display_width-5, y)
-        print((self.display_width- 10 - (self.display_width-10) % 8))
-        for i in range(0, ((self.display_width- 10)*(percent/100) - ((self.display_width-10)*(percent/100)) % 8), 8):
-            self.text(symbol, i + 5, y)
-        
 
 ### Initialization Class I2C ###
 # Returns an object including the I2C connection(self.i2c), inherits the
@@ -221,7 +264,7 @@ class SSD1306_TOOLS:
 # Example:
 # display_object = SSD1306_TOOLS_I2C(Pin(SCL), Pin(SDA), display width, display height)
 
-class SSD1306_TOOLS_I2C(SSD1306_TOOLS, SSD1306_I2C):
+class SSD1306_I2C_SETUP(SSD1306_I2C, SSD1306_GFX):
     def __init__(self, scl_pin, sda_pin, display_width, display_height, addr=0x3c, external_vcc=False):
         self.display_width  = display_width
         self.display_height = display_height
@@ -236,8 +279,7 @@ class SSD1306_TOOLS_I2C(SSD1306_TOOLS, SSD1306_I2C):
 #
 # Please feel free to contribute on github
 
-
-class SSD1306_TOOLS_SPI( SSD1306_SPI, SSD1306_TOOLS):
+class SSD1306_SPI_SETUP( SSD1306_SPI, SSD1306_GFX):
     def __init__(self, display_width, display_height, spi, dc, res, cs, external_vcc=False):
         self.display_width  = display_width
         self.display_height = display_height
@@ -249,18 +291,20 @@ class SSD1306_TOOLS_SPI( SSD1306_SPI, SSD1306_TOOLS):
 
 if __name__ == "__main__":
     
-    oled_tools = SSD1306_TOOLS_I2C(22, 21, 128, 64)
-    #oled_tools.frame(127, 0, 0, 63, 2)
-    #oled_tools.rect(127, 63 , 0 , 63)
-    #oled_tools.fill(1)
-    #oled_tools.text("Test TEXT", 10, 20, 0)
-    oled_tools.frame(10, 10, 120, 62, 5)
-    #oled_tools.circle(63,31,31)
-    #oled_tools.circle_filled()
-    #oled_tools.line_h(63)
+    ssd1306_display = SSD1306_I2C_SETUP(22, 21, 128, 64)
+    #ssd1306_display.frame(0, 0, 127, 63, 1)
+    #ssd1306_display.fill(1)
+    #ssd1306_display.line_vertical(10, 0, None, 3)
+    #ssd1306_display.line_horizontal(10, 0, None, 3)
+    #ssd1306_display.text("Test TEXT", 10, 20, 0)
+    #ssd1306_display.frame()
+    #ssd1306_display.rectangle(40, 0 , 80 , 63)
+    #ssd1306_display.line(30, 0, 30, 30, 1)
+    #ssd1306_display.wline(12, 0, 13 , 63)
+    #ssd1306_display.circle_filled()
+    ssd1306_display.triangle()
+    #ssd1306_display.progress_bar(10, 75)
     
-    #oled_tools.progress_bar(10, 75)
-    
-    oled_tools.show() # Draws the content of the buffeer onto the Display !!!
+    ssd1306_display.show() # Draws the content of the buffeer onto the Display !!!
     
     
