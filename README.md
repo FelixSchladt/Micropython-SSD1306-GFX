@@ -5,6 +5,7 @@ Micropython Utility library for Adafruit 0.96" SSD1306 monochrome OLED Display -
 
 - GFX pixel drawing functions for basic shapes (circle, rectangle, lines, frames, triangles)
 - Easy setup of an I2C / SPI connection to the display
+- Bresenham algorythm for drawing cleaner lines and circles
 - Examples
   
   
