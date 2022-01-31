@@ -3,42 +3,41 @@
 # https://github.com/micropython/micropython/blob/master/drivers/display/ssd1306.py
 # for more complex graphical tools look at the GFX micropython library
 #
-# Written by Felix Schladt May 2021
+# Written by Felix Schladt May 2022
 #
 # Contribute to this project on Github:
 #
 # https://github.com/FelixSchladt/Micropython-SSD1306-GFX
-#
 #
 
 from ssd1306 import *
 import machine
 
 class SSD1306_GFX:
-    
+
     ########################################
     #                                      #
     #  GFX class with shape functions      #
     #                                      #
     ########################################
-    
+
     # Some basic functions are provided through the inherited FrameBuffer class
     # this includes: line, rect, pixel, fill, text and more
     #
     # http://docs.micropython.org/en/latest/pyboard/library/framebuf.html
-    
-    
+
+
     ### Draw rectangle ###
     # draw a solid rectangle
     #
     # x0, y0  -> first coordinate
     # x1 , y1   -> second coordinate
     # color   -> 0 = black , 1 = colored | optional
-        
+
     def rectangle(self, x0, y0, x1 , y1, color = 1):
         self.fill_rect(x0 if x1-x0 >= 0 else x1, y0 if y1-y0 >= 0 else y1, x0-x1 if x1-x0 < 0 else x1, y0-y1 if y1-y0 < 0 else y1, color)
 
-    
+
     ### Draw frame ###
     # draw a hollow frame
     #
@@ -47,18 +46,18 @@ class SSD1306_GFX:
     # height  -> height in pixel
     # width -> width of the frame in pixel | optional
     # color   -> 0 = black , 1 = colored | optional
-   
+
     def frame(self, x0 = 0, y0 = 0, x1 = None, y1 = None, width = 1, color = 1):
         x1 = self.display_width-1 if x1 is None else x1
         y1 = self.display_height-1 if y1 is None else y1
-        
+
         self.rectangle( x0, y0, (x0 - width) if x0 > x1 else (x0 + width), y1, color )
         self.rectangle( x1, y0, (x1 + width) if x0 > x1 else (x1 - width), y1, color )
-        
+
         self.rectangle( x0, y0, x1, (y0 + width) if y0 < y1 else (y0 - width), color)
-        self.rectangle( x0, y1, x1, (y1 - width) if y0 < y1 else (y1 + width), color) 
-    
-    
+        self.rectangle( x0, y1, x1, (y1 - width) if y0 < y1 else (y1 + width), color)
+
+
     ### Draw line ###
     # draw a line between two points. Based on the Bresenham algorythm
     #
@@ -66,32 +65,32 @@ class SSD1306_GFX:
     # x1, y1  -> end coordinate
     # width   -> width in pixel
     # color   -> 0 = black , 1 = colored | optional
-    
+
     def line_wide(self, x0 = 0 , y0 = 0 , x1 = None, y1 = None, width = 1, color = 1):
         x1 = self.display_width-1 if x1 is None else x1
         y1 = self.display_height-1 if y1 is None else y1
         for offset in range(0, width, 1 if 0 < width else -1):
             self.line( x0 + offset, y0 + offset, x1 + offset, y1+ offset, color)
-    
-    
+
+
     ### Draw line horizontal ###
     # draw a horizontal line spannign the total display
     #
     # y       -> start point (x = 0, y = ?)
     # color   -> 0 = black , 1 = colored | optional
-    
+
     def line_horizontal(self, y, x0 = 0, x1 = None, width = 1, color = 1):
         x1 = self.display_width-1 if x1 is None else x1
         for offset in range(0, width, 1 if 0 < width else -1):
             self.hline(x0, y + offset, x1-x0, color)
 
-    
+
     ### Draw line vertical ###
     # draw a vertical line spannign the total display
     #
     # y       -> start point (x = ?, y = 0)
     # color   -> 0 = black , 1 = colored  | optional
-    
+
     def line_vertical(self, x, y0 = 0, y1 = None, width = 1, color = 1):
         y1 = self.display_height-1 if y1 is None else y1
         for offset in range(0, width, 1 if 0 < width else -1):
@@ -105,17 +104,18 @@ class SSD1306_GFX:
     # x1, y1  -> second coordinate
     # x2, y2  -> third coordinate
     # color   -> 0 = black , 1 = colored  | optional
-    
+
     def triangle_filled(self, x0 = 0, y0 = 0, x1 = None, y1 = None, x2 = None, y2 = 0, color = 1):
         x1 = int(self.display_width/2-1) if x1 is None else x1
         y1 = int(self.display_height-1) if y1 is None else y1
         x2 = int(self.display_width-1) if x2 is None else x2
-        
+
         l0, l1 = self.__bresenham_line(x0, y0, x1, y1), self.__bresenham_line(x1, y1, x2, y2)
         for y in l0:
             self.line_horizontal(y, min(l0[y]), min(l1[y])+1, color)
             self.line_horizontal(y, max(l0[y]), max(l1[y])+1, color)
-        
+
+
     ### Draw triangle ###
     # draw a hollow triangle between 3 coordinates
     #
@@ -124,32 +124,22 @@ class SSD1306_GFX:
     # x2, y2  -> third coordinate
     # width   -> width in pixel # Does not yet work as expected due to limitations in the line algorythm
     # color   -> 0 = black , 1 = colored  | optional
-        
+
     def triangle(self, x0 = 0, y0 = 0, x1 = None, y1 = None, x2 = None, y2 = 0, width = 1, color = 1):
         def g_ofs(current, values):
             return (current + 1) if min(values) == current else ((current - 1) if max(values) == current else current)
-        
+
         x1 = int(self.display_width/2-1) if x1 is None else x1
         y1 = int(self.display_height-1) if y1 is None else y1
         x2 = int(self.display_width-1) if x2 is None else x2
-        
+
         self.line(x0, y0, x1, y1, color)
         self.line(x0, y0, x2, y2, color)
         self.line(x1, y1, x2, y2, color)
-        
+
         if width is not 1: # Not working properly yet
             xl, yl = [x0, x1, x2], [y0, y1, y2]
             self.triangle(g_ofs(x0 , [x0, x1, x2]), g_ofs(y0 , [y0, y1, y2]), g_ofs(x1 , [x0, x1, x2]), g_ofs(y1 , [y0, y1, y2]), g_ofs(x2 , [x0, x1, x2]), g_ofs(y2 , [y0, y1, y2]), width-1, color)
-        '''
-        xl, yl = [x0, x1, x2], [y0, y1, y2]
-        
-        for ofs in range(0, width, 1 if 0 < width else -1):
-            x_o = [g_ofs(x0 , xl), g_ofs(x1 , xl), g_ofs(x2 , xl)]
-            y_o = [g_ofs(y0 , yl), g_ofs(y1 , yl), g_ofs(y2 , yl)]
-            self.line(x_o[0], y_o[0], x_o[1], y_o[1], color)
-            self.line(x_o[0], y_o[0], x_o[2], y_o[2], color)
-            self.line(x_o[1], y_o[1], x_o[2], y_o[2], color)
-        '''
 
 
     ### Draw hollow circle ###
@@ -159,28 +149,28 @@ class SSD1306_GFX:
     # r       -> radius in pixel
     # width   -> width in pixel
     # color   -> 0 = black , 1 = colored  | optional
-    
-    def circle(self, x0 = None, y0 = None, r = None, width = 1, color =1): 
+
+    def circle(self, x0 = None, y0 = None, r = None, width = 1, color =1):
         x0 = (self.display_width/2-1) if x0 is None else x0
         y0 = (self.display_height/2-1) if y0 is None else y0
         r = (self.display_height/2-1) if r is None else r
         width -= 1
-        
+
         icoordinates = self.__bresenham_circle(x0, y0, (r-width))
         for y in icoordinates:
             for x in range(0, len(icoordinates[y])):
                 self.pixel(icoordinates[y][x], y , color)
-                
+
         if width is not 0:
             ocoordinates = self.__bresenham_circle(x0, y0, r)
-            for y in ocoordinates: 
+            for y in ocoordinates:
                 if min(icoordinates) > y or y > max(icoordinates):
                     self.line_horizontal(y, min(ocoordinates[y]), max(ocoordinates[y])+1, color)
                 else:
                     self.line_horizontal(y, min(ocoordinates[y]), min(icoordinates[y])+1, color)
                     self.line_horizontal(y, max(icoordinates[y]), max(ocoordinates[y])+1, color)
                 for x in range(0, len(ocoordinates[y])):
-                   self.pixel(ocoordinates[y][x], y , color) 
+                   self.pixel(ocoordinates[y][x], y , color)
 
 
     ### Draw filled circle ###
@@ -194,12 +184,12 @@ class SSD1306_GFX:
         x0 = (self.display_width/2-1) if x0 is None else x0
         y0 = (self.display_height/2-1) if y0 is None else y0
         r = (self.display_height/2-1) if r is None else r
-        
+
         coordinates = self.__bresenham_circle(x0, y0, r)
         for y in coordinates:
             self.line_horizontal(y, min(coordinates[y]), max(coordinates[y])+1, color)
-            
-    
+
+
     ### Progress bar ###
     # Displays percentage visually in a bar
     #
@@ -207,7 +197,7 @@ class SSD1306_GFX:
     # percent -> progress in percent | int 75 = 75%
     # symbol  -> choose symbol to be displayed | optional
     # color   -> 0 = black , 1 = colored | optional
-    
+
     def progress_bar(self, y, percent, symbol = "=", color = 0):
         self.text("|", 0, y)
         self.text("|", self.display_width-5, y)
@@ -215,7 +205,7 @@ class SSD1306_GFX:
         for i in range(0, ((self.display_width- 10)*(percent/100) - ((self.display_width-10)*(percent/100)) % 8), 8):
             self.text(symbol, i + 5, y)
 
-    
+
     ### private sub class of line ###
     # Line drawing based upon the bresenham algorythm
     def __bresenham_line(self, x0 , y0 , x1, y1):
@@ -247,9 +237,9 @@ class SSD1306_GFX:
                 D -= 2*dx
             D += 2*dy
         return n
-    
+
     ### private sub class of circle ###
-    # Circle drawing based upon the bresenham algorythm
+    # Circle drawing based upon the bresenham algorithm
     def __bresenham_circle(self, x0, y0, r):
         x, y, p = 0, r, 1-r
 
@@ -276,7 +266,7 @@ class SSD1306_GFX:
             L.append((-i[0], i[1]))
             L.append((i[0], -i[1]))
             L.append((-i[0], -i[1]))
-        
+
         n = {}
         for i in L:
             if n.get(int(y0+i[1])) is None:
@@ -284,7 +274,7 @@ class SSD1306_GFX:
             else:
                 n[int(y0+i[1])].append(int(x0+i[0]))
         return n
-    
+
 
 ### Initialization Class I2C ###
 # Returns an object including the I2C connection(self.i2c), inherits the
@@ -303,7 +293,7 @@ class SSD1306_I2C_SETUP(SSD1306_I2C, SSD1306_GFX):
         self.display_width  = display_width
         self.display_height = display_height
         self.i2c = machine.SoftI2C(Pin(scl_pin), Pin(sda_pin))
-        
+
         super().__init__( display_width, display_height, self.i2c, addr, external_vcc)
 
 
@@ -317,29 +307,22 @@ class SSD1306_SPI_SETUP( SSD1306_SPI, SSD1306_GFX):
     def __init__(self, display_width, display_height, spi, dc, res, cs, external_vcc=False):
         self.display_width  = display_width
         self.display_height = display_height
-        
+
         super().__init__(self, display_width, display_height, spi, dc, res, cs, external_vcc=False)
-  
+
 
 ### Testing ####
 
 if __name__ == "__main__":
-    
+
     ssd1306_display = SSD1306_I2C_SETUP(22, 21, 128, 64)
-    
+
     #ssd1306_display.fill(1)
     ssd1306_display.line_vertical(63, 0, 53, 1)
-    #ssd1306_display.line_horizontal(10, 0, None, 3)
-    #ssd1306_display.text("Test TEXT", 10, 20, 0)
-    #ssd1306_display.frame()
-    #ssd1306_display.rectangle(40, 0 , 80 , 63)
-    #ssd1306_display.line(30, 0, 30, 30, 1)
-    #ssd1306_display.wline(12, 0, 13 , 63)
     ssd1306_display.circle(None, 27, 26)
     ssd1306_display.triangle()
-    #ssd1306_display.progress_bar(10, 75)
     #ssd1306_display.frame(0, 0, 127, 63, 4)
-    
+
     ssd1306_display.show() # Draws the content of the buffeer onto the Display !!!
-    
-    
+
+
