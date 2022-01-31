@@ -3,7 +3,7 @@
 # https://github.com/micropython/micropython/blob/master/drivers/display/ssd1306.py
 # for more complex graphical tools look at the GFX micropython library
 #
-# Written by Felix Schladt May 2022
+# Written by Felix Schladt January 2022
 #
 # Contribute to this project on Github:
 #
