@@ -12,7 +12,7 @@ Micropython Utility library for Adafruit 0.96" SSD1306 monochrome OLED Display -
 ## Warning
 
 This project was written just **for fun and personal use**. 
-Altough depreciated [Adafruits's GFX Library](https://github.com/adafruit/micropython-adafruit-gfx/blob/master/gfx.py) probably provides the better performance
+Altough depreciated [Adafruits's GFX Library](https://github.com/adafruit/micropython-adafruit-gfx/blob/master/gfx.py) probably provides better performance
   
   
 
