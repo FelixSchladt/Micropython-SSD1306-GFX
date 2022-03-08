@@ -1,5 +1,6 @@
 # Micropython SSD1306-GFX
-Micropython Utility library for Adafruit 0.96" SSD1306 monochrome OLED Display - GFX functions &amp; examples
+Micropython Utility library for Adafruit 0.96" SSD1306 monochrome OLED Display
+_GFX functions &amp; examples._
 
 ### This project includes
 
@@ -12,7 +13,7 @@ Micropython Utility library for Adafruit 0.96" SSD1306 monochrome OLED Display -
 ## Warning
 
 This project was written just **for fun and personal use**. 
-Altough depreciated [Adafruits's GFX Library](https://github.com/adafruit/micropython-adafruit-gfx/blob/master/gfx.py) probably provides better performance
+Altough depreciated [Adafruits's GFX Library](https://github.com/adafruit/micropython-adafruit-gfx/blob/master/gfx.py) probably provides better performance.
   
   
 
@@ -31,7 +32,7 @@ The SPI implemenatation is not yet tested.
 
 ### This library requires the display driver for SSD1306
 
-Keep a copy of [ssd1306.py](https://github.com/micropython/micropython/blob/master/drivers/display/ssd1306.py) in the same directory
+Keep a copy of [ssd1306.py](https://github.com/micropython/micropython/blob/master/drivers/display/ssd1306.py) in the same directory.
   
   
 ## Display setup
@@ -62,7 +63,7 @@ _please consider contributing to this section..._
 Keep them in the same directory on the micropython device
 
 #### Import the Library classes
-the ssd1306_gfx class inherits the methods of the ssd1306.py class.
+The ssd1306_gfx class inherits the methods of the ssd1306.py class.
 
 ```python
 import ssd1306_gfx

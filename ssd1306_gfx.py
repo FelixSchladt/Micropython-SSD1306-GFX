@@ -3,7 +3,7 @@
 # https://github.com/micropython/micropython/blob/master/drivers/display/ssd1306.py
 # for more complex graphical tools look at the GFX micropython library
 #
-# Written by Felix Schladt January 2022
+# Written by Felix Schladt 2022
 #
 # Contribute to this project on Github:
 #
@@ -59,7 +59,7 @@ class SSD1306_GFX:
 
 
     ### Draw line ###
-    # draw a line between two points. Based on the Bresenham algorythm
+    # draw a line between two points. Based on the Bresenham algorithm
     #
     # x0, y0  -> start coordinate
     # x1, y1  -> end coordinate
@@ -122,7 +122,7 @@ class SSD1306_GFX:
     # x0, y0  -> first coordinate
     # x1, y1  -> second coordinate
     # x2, y2  -> third coordinate
-    # width   -> width in pixel # Does not yet work as expected due to limitations in the line algorythm
+    # width   -> width in pixel # Does not yet work as expected due to limitations in the line algorithm
     # color   -> 0 = black , 1 = colored  | optional
 
     def triangle(self, x0 = 0, y0 = 0, x1 = None, y1 = None, x2 = None, y2 = 0, width = 1, color = 1):
@@ -143,7 +143,7 @@ class SSD1306_GFX:
 
 
     ### Draw hollow circle ###
-    # draw a circle with a given radius around a coordinate
+    # draw a circle with a given radius around center
     #
     # x0, y0  -> center
     # r       -> radius in pixel
@@ -174,7 +174,7 @@ class SSD1306_GFX:
 
 
     ### Draw filled circle ###
-    # draw a solid circle with a given radius around a coordinate
+    # draw a solid circle with a given radius around center
     #
     # x0, y0  -> center
     # r       -> radius in pixel
@@ -207,7 +207,7 @@ class SSD1306_GFX:
 
 
     ### private sub class of line ###
-    # Line drawing based upon the bresenham algorythm
+    # Line drawing based upon the bresenham algorithm
     def __bresenham_line(self, x0 , y0 , x1, y1):
         dx = x1 - x0
         dy = y1 - y0
