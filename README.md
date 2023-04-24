@@ -13,7 +13,7 @@ _GFX functions &amp; examples._
 ## Warning
 
 This project was written just **for fun and personal use**. 
-Altough depreciated [Adafruits's GFX Library](https://github.com/adafruit/micropython-adafruit-gfx/blob/master/gfx.py) probably provides better performance.
+Altough deprecated [Adafruits's GFX Library](https://github.com/adafruit/micropython-adafruit-gfx/blob/master/gfx.py) probably provides better performance.
   
   
 
@@ -26,7 +26,7 @@ If not follow this [tutorial](https://docs.micropython.org/en/v1.15/esp32/tutori
 
 As development IDE I **personally** recommend [thonny](https://thonny.org/).  
 
-This project was wirtten and tested with an ESP32 using an I2C connection but it should work fine on other micropython devices.  
+This project was written and tested with an ESP32 using an I2C connection but it should work fine on other micropython devices.  
 The SPI implemenatation is not yet tested.  
 
 
